@@ -1,0 +1,61 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" | "%" ~ (!"\n" ~ ANY)* ~ "\n" | "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+program = { SOI ~ instr* ~ EOI }
+instr = _{ query | rule | fact }
+
+fact = { functor ~ dot }
+rule = { term ~ implied_by ~ expr_with_cut ~ dot }
+query = { query_token ~ expr ~ dot }
+
+dot = { "." }
+comma = { "," }
+semi_colon = { ";" }
+cut_backtracking = { "!" }
+open_parenthesis = { "(" }
+close_parenthesis = { ")" }
+open_sq_bracket = { "[" }
+close_sq_bracket = { "]" }
+split_list = { "|" }
+equal = { "==" }
+equal_or_bind = { "=" }
+not_equal_bind = { "\\=" }
+implied_by = { ":-" }
+query_token = { "?-" }
+
+ASCII_LOWER_ALPHA = _{ 'a'..'z' }
+ASCII_UPPER_ALPHA = _{ 'A'..'Z' }
+ASCII_ALPHANUMERIC = _{ ASCII_LOWER_ALPHA | ASCII_UPPER_ALPHA | ASCII_DIGIT }
+ASCII_DIGIT = _{ '0'..'9' }
+
+atom = { symbol_in_single_quote | symbol_without_single_quote | string }
+symbol_in_single_quote = { "'" ~ symbol_chars ~ "'" }
+symbol_without_single_quote = { ASCII_LOWER_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+string = { "\"" ~ string_chars* ~ "\"" }
+string_chars = { ASCII_ALPHANUMERIC | "_" | "+" | "-" | "*" | "/" | "<" | ">" | "=" | ":" | "." | "&" | "~" | " " }
+symbol_chars = { ASCII_ALPHANUMERIC | "_" | " " }
+
+variable = { ASCII_UPPER_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* | "_" ~ (ASCII_ALPHANUMERIC | "_")* }
+
+number = @{ sign? ~ (int_part ~ frac_part? | "." ~ digits) ~ exp_part? ~ suffix? }
+// Pieces
+sign       = { "-" }
+digits     = { ASCII_DIGIT+ }
+int_part   = { digits }
+frac_part  = { "." ~ digits }                 // requires at least one digit after '.'
+exp_part   = { ^"e" ~ ("+" | "-")? ~ digits }       // ^"e" makes 'e' or 'E'
+suffix     = { ^"f" | ^"d" }                  // 'f'/'F' or 'd'/'D'
+
+functor = { atom ~ open_parenthesis ~ term_list ~ close_parenthesis }
+term_list = { term ~ (comma ~ term)* }
+term = _{ simple_term | complex_term }
+simple_term = _{ constant | variable }
+complex_term = _{ functor | list }
+constant = _{ atom | number }
+list = { open_sq_bracket ~ close_sq_bracket | open_sq_bracket ~ term_list ~ close_sq_bracket | open_sq_bracket ~ term_list ~ split_list ~ term ~ close_sq_bracket }
+
+expr_with_cut = { expr }
+expr = { basic_expr }
+basic_expr = { not_provable | expr_equal_bind | expr_not_equal_bind | term }
+not_provable = { "\\+" ~ term }
+expr_equal_bind = { term ~ equal_or_bind ~ term }
+expr_not_equal_bind = { term ~ not_equal_bind ~ term }
