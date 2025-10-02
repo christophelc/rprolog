@@ -7,6 +7,8 @@ pub struct G;
 
 #[cfg(test)]    
 mod tests {
+    use crate::tree::parse_program;
+
     use super::*;
 
     #[test]
@@ -133,5 +135,30 @@ mod tests {
                 "Expected '{s}' to parse as fact"
             );
         }
+    }
+
+    #[test]
+    fn test_functor_ws() {
+        let s = "parent(mary, X)";
+        let parsed = G::parse(Rule::functor, s);
+        assert!(parsed.is_ok(), "Failed to parse functor: {:?}", parsed);
+    }
+    
+    #[test]
+    fn test_rule_with_not() {
+        let s = "parent(mary, X) :- \\+ X = john.";
+        let parsed = G::parse(Rule::rule, s);
+        println!("{:?}", parsed);
+        assert!(parsed.is_ok(), "Failed to parse: {:?}", parsed);
+    }
+    #[test]
+    fn test_program() {
+        let src = r#"
+  parent(john, X).
+  parent(mary, X) :- \+ X = john.
+  ?- parent(john, Y).
+  "#;
+        let prog = parse_program(src).unwrap();
+        println!("{:#?}", prog);
     }
 }
