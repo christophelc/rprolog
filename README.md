@@ -2,6 +2,15 @@
 
 A small Prolog parser written in Rust.
 
+## Aim
+
+Generate constraint chess position in Rust.
+
+Another alternative:
+
+- Embed SWI-Prolog with swipl / swipl-rs (wrapper) and use the clpfd library (programmation by constraints)
+- Embed Scryer Prolog (pure Rust)
+
 ## Overview
 
 **rprolog** is a minimal Prolog parser implemented in Rust. It uses the [`pest`](https://pest.rs/) parser generator to define the Prolog grammar and parse Prolog facts, rules, queries, and terms.
@@ -55,4 +64,3 @@ println!("{:?}", result);
 ## License
 
 MIT
-

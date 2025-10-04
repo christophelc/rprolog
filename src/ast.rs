@@ -1,4 +1,3 @@
-// src/ast.rs
 use pest::Span;
 
 #[derive(Debug, Clone)]
@@ -20,7 +19,8 @@ pub enum Expr<'a> {
     Term(Term<'a>, Span<'a>),
     EqualOrBind(Term<'a>, Term<'a>, Span<'a>),    // =
     NotEqualOrBind(Term<'a>, Term<'a>, Span<'a>), // \=
-    NotProvable(Term<'a>, Span<'a>),              // \+ Goal
+    //NotProvable(Term<'a>, Span<'a>),              // \+ Goal
+    NotProvableExpr(Box<Expr<'a>>, Span<'a>),     // \+ Goal
     Cut(Span<'a>),                                // if you allow ! inside expr
 }
 

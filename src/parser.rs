@@ -7,7 +7,7 @@ pub struct G;
 
 #[cfg(test)]    
 mod tests {
-    use crate::tree::parse_program;
+    use crate::{ast::Program, tree::parse_program};
 
     use super::*;
 
@@ -158,7 +158,7 @@ mod tests {
   parent(mary, X) :- \+ X = john.
   ?- parent(john, Y).
   "#;
-        let prog = parse_program(src).unwrap();
-        println!("{:#?}", prog);
+        let prog: Result<Program, pest::error::Error<Rule>> = parse_program(src);
+        assert!(prog.is_ok(), "Failed to parse: {:?}", prog);
     }
 }
